@@ -77,7 +77,6 @@ public:
     }
 };
 
-
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
  */
@@ -97,6 +96,8 @@ struct DockAreaTitleBarPrivate
 	 * Private data constructor
 	 */
 	DockAreaTitleBarPrivate(CDockAreaTitleBar* _public);
+
+    ~DockAreaTitleBarPrivate();
 
 	/**
 	 * Creates the title bar close and menu buttons
@@ -160,6 +161,13 @@ DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 	_this(_public)
 {
 
+}
+
+DockAreaTitleBarPrivate::~DockAreaTitleBarPrivate()
+{
+    delete TabsMenuButton;
+    delete UndockButton;
+    delete CloseButton;
 }
 
 
