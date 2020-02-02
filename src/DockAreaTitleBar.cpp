@@ -77,6 +77,7 @@ public:
     }
 };
 
+
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
  */
