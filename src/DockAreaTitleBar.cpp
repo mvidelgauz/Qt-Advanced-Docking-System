@@ -97,8 +97,6 @@ struct DockAreaTitleBarPrivate
 	 */
 	DockAreaTitleBarPrivate(CDockAreaTitleBar* _public);
 
-    ~DockAreaTitleBarPrivate();
-
 	/**
 	 * Creates the title bar close and menu buttons
 	 */
@@ -161,13 +159,6 @@ DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 	_this(_public)
 {
 
-}
-
-DockAreaTitleBarPrivate::~DockAreaTitleBarPrivate()
-{
-    delete TabsMenuButton;
-    delete UndockButton;
-    delete CloseButton;
 }
 
 
