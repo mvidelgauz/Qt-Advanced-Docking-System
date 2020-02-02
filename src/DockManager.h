@@ -161,21 +161,21 @@ public:
         DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
 		DefaultConfig = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-                      | DockAreaHasUndockButton
-                      | DockAreaHasTabsMenuButton
+		              | DockAreaHasUndockButton
+		              | DockAreaHasTabsMenuButton
 		              | OpaqueSplitterResize
 		              | XmlCompressionEnabled
 		              | OpaqueUndocking, ///< the default configuration
 		DefaultNonOpaqueConfig = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-                      | DockAreaHasUndockButton
-                      | DockAreaHasTabsMenuButton
+		              | DockAreaHasUndockButton
+		              | DockAreaHasTabsMenuButton
 		              | XmlCompressionEnabled
 		              | DragPreviewShowsContentPixmap, ///< the default configuration for non opaque operations
 		NonOpaqueWithWindowFrame = ActiveTabHasCloseButton
 		              | DockAreaHasCloseButton
-                      | DockAreaHasUndockButton
-                      | DockAreaHasTabsMenuButton
+		              | DockAreaHasUndockButton
+		              | DockAreaHasTabsMenuButton
 		              | XmlCompressionEnabled
 		              | DragPreviewShowsContentPixmap
 		              | DragPreviewHasWindowFrame ///< the default configuration for non opaque operations that show a real window with frame

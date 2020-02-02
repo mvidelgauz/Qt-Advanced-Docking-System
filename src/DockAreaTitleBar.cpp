@@ -187,6 +187,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
 		SLOT(onTabsMenuActionTriggered(QAction*)));
 
+
 	// Undock button
 	UndockButton = new tTitleBarButton();
 	UndockButton->setObjectName("undockButton");
