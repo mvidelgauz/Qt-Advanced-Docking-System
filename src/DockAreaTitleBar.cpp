@@ -190,7 +190,7 @@ void DockAreaTitleBarPrivate::createButtons()
     if (testConfigFlag(CDockManager::DockAreaHasTabsMenuButton))
 	{
 		// Tabs menu button
-		TabsMenuButton = new tTitleBarButton();
+		TabsMenuButton = new CInvisibleWhenDisabledButton();
 		TabsMenuButton->setObjectName("tabsMenuButton");
 		TabsMenuButton->setAutoRaise(true);
 		TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
@@ -218,7 +218,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	if (testConfigFlag(CDockManager::DockAreaHasUndockButton))
 	{
 		// Undock button
-		UndockButton = new tTitleBarButton();
+		UndockButton = new CInvisibleWhenDisabledButton();
 		UndockButton->setObjectName("undockButton");
 		UndockButton->setAutoRaise(true);
 #ifndef QT_NO_TOOLTIP
