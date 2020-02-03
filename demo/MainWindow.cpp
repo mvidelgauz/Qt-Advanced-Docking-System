@@ -146,8 +146,11 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 	QCalendarWidget* w = new QCalendarWidget();
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Calendar %1").arg(CalendarCount++));
 	DockWidget->setWidget(w);
-	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
-	DockWidget->setIcon(svgIcon(":/adsdemo/images/date_range.svg"));
+	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeToggle);
+	auto icon = svgIcon(":/adsdemo/images/date_range.svg");
+	DockWidget->setIcon(icon);
+	DockWidget->toggleViewAction()->setIcon(icon);
+	DockWidget->toggleViewAction()->setIconVisibleInMenu(true);
 	if(ViewMenu) ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
 }
@@ -306,7 +309,7 @@ void MainWindowPrivate::createContent()
 	appendFeaturStringToWindowTitle(FileSystemWidget);
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
 	DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+	//DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 
