@@ -314,6 +314,7 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
+	d->TabsMenuButton->setEnabled(d->TabBar->count() > 1);
 	d->MenuOutdated = true;
 }
 
