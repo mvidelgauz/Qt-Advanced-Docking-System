@@ -56,7 +56,7 @@ namespace ads
 using tTitleBarButton = QToolButton;
 
 /**
- * Title bar icon of a dock area that customizes tTitleBarButton appearance/behaviour
+ * Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
  * according to various config flags such as:
  * CDockManager::DockAreaHasCloseButton - keeps the button always invisible
  * CDockManager::DockAreaHideDisabledButtons - hides button when it is disabled
