@@ -42,6 +42,7 @@ namespace ads
 struct DockWidgetPrivate;
 class CDockWidgetTab;
 class CDockManager;
+class CDockManagerConfigFlag;
 class CDockContainerWidget;
 class CDockAreaWidget;
 class DockContainerWidgetPrivate;
@@ -400,6 +401,11 @@ public:
      * \see setToolBarIconSize()
      */
     QSize toolBarIconSize(eState State) const;
+    
+    /**
+	 * Set a certain config flag
+	 */
+	void setConfigFlag(CDockManagerConfigFlag Flag, bool On = true);
 
 
 #ifndef QT_NO_TOOLTIP

@@ -69,6 +69,8 @@
 #include "DockAreaWidget.h"
 #include "FloatingDockContainer.h"
 
+#include "DockWidgetTab.h" // Needed for "DockWidget->tabWidget()->setVisible(false);"
+
 
 //============================================================================
 static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
@@ -275,11 +277,19 @@ void MainWindowPrivate::createContent()
 	// Test container docking
 	QMenu* ViewMenu = ui.menuView;
 	auto DockWidget = createCalendarDockWidget(ViewMenu);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-	auto SpecialDockArea = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
 
-	// For this Special Dock Area we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
+	// For this Special Dock Widget we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
 	{
+		DockWidget->setConfigFlag(ads::CDockManager::DockAreaHasCloseButton, false);
+		
+		DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+		DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+		DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+		auto SpecialDockArea = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+		DockWidget->tabWidget()->setVisible(false);
+
+		//SpecialDockArea->setConfigFlag(ads::CDockManager::DockAreaHasCloseButton, false);
+
 		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
@@ -417,7 +427,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
     // comment the following line if you want to use opaque undocking and
 	// opaque splitter resizing
-    CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
+    //CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
 
     // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes

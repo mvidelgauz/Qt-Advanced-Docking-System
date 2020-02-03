@@ -464,6 +464,28 @@ signals:
      */
     void dockWidgetRemoved(CDockWidget* DockWidget);
 }; // class DockManager
+
+/**
+ * If you want to use CDockManager::eConfigFlag enum in another header but don't want to #include "DockManager.h" there
+ * you cannot forward declare CDockManager::eConfigFlag type there
+ * (because C++ doesn't allow nested enum forward declaration, see https://stackoverflow.com/questions/27019292/is-in-class-enum-forward-declaration-possible, https://stackoverflow.com/questions/13842006/c-forward-declaring-class-scoped-enumeration)
+ * but you can forward-declare the following wapper classes in those headers:
+ */
+class ADS_EXPORT CDockManagerConfigFlag
+{
+private:
+    const CDockManager::eConfigFlag ThisFlag;
+public:
+    CDockManagerConfigFlag(CDockManager::eConfigFlag Flag) 
+        : ThisFlag(Flag) 
+    {}
+    
+    operator CDockManager::eConfigFlag () const
+    {
+        return ThisFlag;
+    }
+};
+
 } // namespace ads
 //-----------------------------------------------------------------------------
 #endif // DockManagerH

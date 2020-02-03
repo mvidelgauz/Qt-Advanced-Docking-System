@@ -77,6 +77,25 @@ public:
     }
 };
 
+class CInvisibleWhenDisabledButton : public tTitleBarButton
+{
+public:
+    virtual void setVisible(bool visible) override
+    {
+    	Q_UNUSED(visible);
+        tTitleBarButton::setVisible(visible && isEnabled());
+    }
+protected:
+    bool event(QEvent *ev) override
+    {
+        bool res = tTitleBarButton::event(ev);
+        if(ev->type() == QEvent::EnabledChange)
+        {
+            setVisible(isEnabled());
+        }
+        return res;
+    }
+};
 
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
@@ -218,7 +237,8 @@ void DockAreaTitleBarPrivate::createButtons()
 	if (testConfigFlag(CDockManager::DockAreaHasCloseButton))
 	{
 		// Close button
-		CloseButton = new tTitleBarButton();
+		//CloseButton = new tTitleBarButton();
+		CloseButton = new CInvisibleWhenDisabledButton();
 		CloseButton->setObjectName("closeButton");
 		CloseButton->setAutoRaise(true);
 		setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);

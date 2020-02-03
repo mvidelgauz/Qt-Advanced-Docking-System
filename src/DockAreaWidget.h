@@ -42,6 +42,7 @@ namespace ads
 {
 struct DockAreaWidgetPrivate;
 class CDockManager;
+class CDockManagerConfigFlag;
 class CDockContainerWidget;
 class DockContainerWidgetPrivate;
 
@@ -263,6 +264,11 @@ public:
 	 * Returns flags with all allowed drop areas of this particular dock area
 	 */
 	DockWidgetAreas allowedAreas() const;
+
+	/**
+	 * Set a certain config flag
+	 */
+	void setConfigFlag(CDockManagerConfigFlag Flag, bool On = true);
 
 public slots:
 	/**

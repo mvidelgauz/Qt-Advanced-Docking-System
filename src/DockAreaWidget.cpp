@@ -246,6 +246,7 @@ struct DockAreaWidgetPrivate
 	CDockManager*		DockManager		= nullptr;
 	bool UpdateTitleBarButtons = false;
 	DockWidgetAreas		AllowedAreas	= AllDockAreas;
+	CDockManager::ConfigFlags	ConfigFlags;
 
 	/**
 	 * Private data constructor
@@ -309,6 +310,7 @@ struct DockAreaWidgetPrivate
 //============================================================================
 DockAreaWidgetPrivate::DockAreaWidgetPrivate(CDockAreaWidget* _public) :
 	_this(_public)
+	,ConfigFlags(CDockManager::configFlags())
 {
 
 }
@@ -821,6 +823,11 @@ void CDockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
 DockWidgetAreas CDockAreaWidget::allowedAreas() const
 {
 	return d->AllowedAreas;
+}
+
+void CDockAreaWidget::setConfigFlag(CDockManagerConfigFlag Flag, bool On)
+{
+	internal::setFlag(d->ConfigFlags, Flag, On);
 }
 
 //============================================================================

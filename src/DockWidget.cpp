@@ -80,6 +80,7 @@ struct DockWidgetPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	bool IsFloatingTopLevel = false;
+	CDockManager::ConfigFlags	ConfigFlags;
 
 	/**
 	 * Private data constructor
@@ -118,6 +119,7 @@ struct DockWidgetPrivate
 //============================================================================
 DockWidgetPrivate::DockWidgetPrivate(CDockWidget* _public) :
 	_this(_public)
+	,ConfigFlags(CDockManager::configFlags())
 {
 
 }
@@ -687,7 +689,12 @@ QSize CDockWidget::toolBarIconSize(eState State) const
 	else
 	{
 		return d->ToolBarIconSizeDocked;
-	}
+    }
+}
+
+void CDockWidget::setConfigFlag(CDockManagerConfigFlag Flag, bool On)
+{
+	internal::setFlag(d->ConfigFlags, Flag, On);
 }
 
 
@@ -813,7 +820,7 @@ bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
     	toggleView(false);
     }
 
-	return true;
+    return true;
 }
 
 
