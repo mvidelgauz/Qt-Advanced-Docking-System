@@ -148,7 +148,7 @@ static ads::CDockWidget* createCalendarDockWidget(QMenu* ViewMenu)
 	DockWidget->setWidget(w);
 	DockWidget->setToggleViewActionMode(ads::CDockWidget::ActionModeShow);
 	DockWidget->setIcon(svgIcon(":/adsdemo/images/date_range.svg"));
-	ViewMenu->addAction(DockWidget->toggleViewAction());
+	if(ViewMenu) ViewMenu->addAction(DockWidget->toggleViewAction());
 	return DockWidget;
 }
 
@@ -276,7 +276,7 @@ void MainWindowPrivate::createContent()
 {
 	// Test container docking
 	QMenu* ViewMenu = ui.menuView;
-	auto DockWidget = createCalendarDockWidget(ViewMenu);
+	auto DockWidget = createCalendarDockWidget(nullptr); // (ViewMenu) we don't want ViewMenu item for this special widget/area (in this branch)
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
