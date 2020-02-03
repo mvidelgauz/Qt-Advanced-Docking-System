@@ -58,8 +58,8 @@ using tTitleBarButton = QToolButton;
 /**
  * Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
  * according to various config flags such as:
- * CDockManager::DockAreaHasCloseButton - keeps the button always invisible
- * CDockManager::DockAreaHideDisabledButtons - hides button when it is disabled
+ * CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
+ * CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
  */
 class CTitleBarButton : public tTitleBarButton
 {
