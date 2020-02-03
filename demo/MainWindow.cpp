@@ -69,6 +69,8 @@
 #include "DockAreaWidget.h"
 #include "FloatingDockContainer.h"
 
+#include "DockWidgetTab.h" // Needed for "DockWidget->tabWidget()->setVisible(false);"
+
 
 //============================================================================
 static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
@@ -282,6 +284,8 @@ void MainWindowPrivate::createContent()
 
 	// For this Special Dock Area we want to avoid dropping on the center of it (i.e. we don't want this widget to be ever tabbified):
 	{
+		DockWidget->tabWidget()->setVisible(false);
+
 		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
