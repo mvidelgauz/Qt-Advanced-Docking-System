@@ -63,21 +63,68 @@ using tTitleBarButton = QToolButton;
 class CTitleBarButton : public tTitleBarButton
 {
 	bool Visible = true;
+	bool HideWhenDisabled = false;
 public:
-	CTitleBarButton(bool visible = true, QWidget* parent = nullptr)
+	CTitleBarButton(bool visible, bool hideWhenDisabled, QWidget* parent = nullptr)
 		: tTitleBarButton(parent)
 		, Visible(visible)
+		, HideWhenDisabled(hideWhenDisabled)
 	{
-		this->hide();
+		//this->setVisible(Visible); // this causes flickering and seems not to be needed TODO: investigate further and in case it IS needed fix flickering
 	}
 	
 
 	virtual void setVisible(bool visible) override
 	{
-		Q_UNUSED(visible);
-		if(!this->Visible) tTitleBarButton::setVisible(false);
+		// Adjust this visibility change request with our internal settings:
+
+		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
+		visible = visible && this->Visible;
+
+		// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
+		if(visible && HideWhenDisabled)
+		{
+			visible = isEnabled();
+		}
+
+		tTitleBarButton::setVisible(visible);
+	}
+	
+protected:
+	bool event(QEvent *ev) override
+	{
+		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
+		{
+			// force setVisible() call 
+			setVisible(isEnabled());
+		}
+
+		return tTitleBarButton::event(ev);;
 	}
 };
+
+
+
+class CInvisibleWhenDisabledButton : public tTitleBarButton
+{
+public:
+    virtual void setVisible(bool visible) override
+    {
+    	Q_UNUSED(visible);
+        tTitleBarButton::setVisible(visible && isEnabled());
+    }
+protected:
+    bool event(QEvent *ev) override
+    {
+        bool res = tTitleBarButton::event(ev);
+        if(ev->type() == QEvent::EnabledChange)
+        {
+            setVisible(isEnabled());
+        }
+        return res;
+    }
+};
+
 
 
 /**
@@ -171,7 +218,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
 	// Tabs menu button
-	TabsMenuButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasTabsMenuButton));
+	TabsMenuButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasTabsMenuButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
@@ -192,7 +239,7 @@ void DockAreaTitleBarPrivate::createButtons()
 
 
 	// Undock button
-	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton));
+	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
 	UndockButton->setObjectName("undockButton");
 	UndockButton->setAutoRaise(true);
 #ifndef QT_NO_TOOLTIP
@@ -204,7 +251,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
 	// Close button
-	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
+	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
 	setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
