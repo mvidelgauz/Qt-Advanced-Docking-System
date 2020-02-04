@@ -214,6 +214,11 @@ public:
 	static void setConfigFlag(eConfigFlag Flag, bool On = true);
 
 	/**
+	 * Returns true if the given config flag is set
+	 */
+	static bool testConfigFlag(eConfigFlag Flag);
+
+	/**
 	 * Returns the global icon provider.
 	 * The icon provider enables the use of custom icons in case using
 	 * styleheets for icons is not an option.

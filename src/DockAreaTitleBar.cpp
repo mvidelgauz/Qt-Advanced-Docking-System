@@ -55,56 +55,6 @@ namespace ads
 {
 using tTitleBarButton = QToolButton;
 
-/**
- * Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
- * according to various config flags such as:
- * CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
- * CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
- */
-class CTitleBarButton : public tTitleBarButton
-{
-	bool Visible = true;
-	bool HideWhenDisabled = false;
-public:
-	CTitleBarButton(bool visible, bool hideWhenDisabled, QWidget* parent = nullptr)
-		: tTitleBarButton(parent)
-		, Visible(visible)
-		, HideWhenDisabled(hideWhenDisabled)
-	{
-		//this->setVisible(Visible); // this causes flickering and seems not to be needed TODO: investigate further and in case it IS needed fix flickering
-	}
-	
-
-	virtual void setVisible(bool visible) override
-	{
-		// Adjust this visibility change request with our internal settings:
-
-		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
-		visible = visible && this->Visible;
-
-		// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
-		if(visible && HideWhenDisabled)
-		{
-			visible = isEnabled();
-		}
-
-		tTitleBarButton::setVisible(visible);
-	}
-	
-protected:
-	bool event(QEvent *ev) override
-	{
-		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
-		{
-			// force setVisible() call 
-			setVisible(isEnabled());
-		}
-
-		return tTitleBarButton::event(ev);;
-	}
-};
-
-
 
 /**
  * Private data class of CDockAreaTitleBar class (pimpl)
@@ -147,7 +97,7 @@ struct DockAreaTitleBarPrivate
 	/**
 	 * Returns true if the given config flag is set
 	 */
-	bool testConfigFlag(CDockManager::eConfigFlag Flag) const
+	static bool testConfigFlag(CDockManager::eConfigFlag Flag)
 	{
 		return CDockManager::configFlags().testFlag(Flag);
 	}
@@ -182,6 +132,55 @@ struct DockAreaTitleBarPrivate
 };// struct DockAreaTitleBarPrivate
 
 
+/**
+ * Title bar button of a dock area that customizes tTitleBarButton appearance/behaviour
+ * according to various config flags such as:
+ * CDockManager::DockAreaHas_xxx_Button - if set to 'false' keeps the button always invisible
+ * CDockManager::DockAreaHideDisabledButtons - if set to 'true' hides button when it is disabled
+ */
+class CTitleBarButton : public tTitleBarButton
+{
+	bool Visible = true;
+	bool HideWhenDisabled = false;
+public:
+	CTitleBarButton(bool visible = true, QWidget* parent = nullptr)
+		: tTitleBarButton(parent)
+		, Visible(visible)
+		, HideWhenDisabled(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
+	{
+		//this->setVisible(Visible); // this causes flickering and seems not to be needed TODO: investigate further and in case it IS needed fix flickering
+	}
+	
+
+	virtual void setVisible(bool visible) override
+	{
+		// Adjust this visibility change request with our internal settings:
+
+		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
+		visible = visible && this->Visible;
+
+		// 'visible' can stay 'true' unless: this button is configured to be invisible when it is disabled and it is currently disabled:
+		if(visible && HideWhenDisabled)
+		{
+			visible = isEnabled();
+		}
+
+		tTitleBarButton::setVisible(visible);
+	}
+	
+protected:
+	bool event(QEvent *ev) override
+	{
+		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
+		{
+			// force setVisible() call 
+			setVisible(isEnabled());
+		}
+
+		return tTitleBarButton::event(ev);;
+	}
+};
+
 
 //============================================================================
 DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
@@ -197,7 +196,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	QSizePolicy ButtonSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
 	// Tabs menu button
-	TabsMenuButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasTabsMenuButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
+	TabsMenuButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasTabsMenuButton));
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
@@ -218,7 +217,7 @@ void DockAreaTitleBarPrivate::createButtons()
 
 
 	// Undock button
-	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
+	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton));
 	UndockButton->setObjectName("undockButton");
 	UndockButton->setAutoRaise(true);
 #ifndef QT_NO_TOOLTIP
@@ -230,7 +229,7 @@ void DockAreaTitleBarPrivate::createButtons()
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
 
 	// Close button
-	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton), testConfigFlag(CDockManager::DockAreaHideDisabledButtons));
+	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
 	setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
