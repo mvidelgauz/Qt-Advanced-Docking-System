@@ -101,34 +101,6 @@ struct DockAreaTitleBarPrivate
 	{
 		return CDockManager::configFlags().testFlag(Flag);
 	}
-
-    /**
-     * Helper function to set title bar button icons depending on operating
-     * system and to avoid duplicated code. On windows the standard icons
-     * are blurry since Qt 5.11 so we need to do some additional steps.
-     * If the global IconPovider of the dockmanager provides a custom
-     * Icon for the given CustomIconId, the this icon will be used.
-     */
-    void setTitleBarButtonIcon(tTitleBarButton* Button, QStyle::StandardPixmap StandarPixmap,
-    	ads::eIcon CustomIconId)
-    {
-    	// First we try to use custom icons if available
-    	QIcon Icon = CDockManager::iconProvider().customIcon(CustomIconId);
-    	if (!Icon.isNull())
-    	{
-    		Button->setIcon(Icon);
-    		return;
-    	}
-
-    #ifdef Q_OS_LINUX
-        Button->setIcon(_this->style()->standardIcon(StandarPixmap));
-    #else
-        QPixmap normalPixmap = _this->style()->standardPixmap(StandarPixmap, 0, Button);
-        Icon.addPixmap(internal::createTransparentPixmap(normalPixmap, 0.25), QIcon::Disabled);
-        Icon.addPixmap(normalPixmap, QIcon::Normal);
-        Button->setIcon(Icon);
-    #endif
-    }
 };// struct DockAreaTitleBarPrivate
 
 
@@ -143,19 +115,19 @@ class CTitleBarButton : public tTitleBarButton
 	bool Visible = true;
 	bool HideWhenDisabled = false;
 public:
+	using Super = tTitleBarButton;
 	CTitleBarButton(bool visible = true, QWidget* parent = nullptr)
-		: tTitleBarButton(parent)
-		, Visible(visible)
-		, HideWhenDisabled(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
-	{
-		//this->setVisible(Visible); // this causes flickering and seems not to be needed TODO: investigate further and in case it IS needed fix flickering
-	}
+		: tTitleBarButton(parent),
+		  Visible(visible),
+		  HideWhenDisabled(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideDisabledButtons))
+	{}
 	
 
+	/**
+	 * Adjust this visibility change request with our internal settings:
+	 */
 	virtual void setVisible(bool visible) override
 	{
-		// Adjust this visibility change request with our internal settings:
-
 		// 'visible' can stay 'true' if and only if this button is configured to generaly visible:
 		visible = visible && this->Visible;
 
@@ -165,10 +137,13 @@ public:
 			visible = isEnabled();
 		}
 
-		tTitleBarButton::setVisible(visible);
+		Super::setVisible(visible);
 	}
 	
 protected:
+	/**
+	 * Handle EnabledChanged signal to set button invisible if the configured
+	 */
 	bool event(QEvent *ev) override
 	{
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
@@ -177,7 +152,7 @@ protected:
 			setVisible(isEnabled());
 		}
 
-		return tTitleBarButton::event(ev);;
+		return Super::event(ev);;
 	}
 };
 
@@ -200,16 +175,14 @@ void DockAreaTitleBarPrivate::createButtons()
 	TabsMenuButton->setObjectName("tabsMenuButton");
 	TabsMenuButton->setAutoRaise(true);
 	TabsMenuButton->setPopupMode(QToolButton::InstantPopup);
-	setTitleBarButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
+	internal::setButtonIcon(TabsMenuButton, QStyle::SP_TitleBarUnshadeButton, ads::DockAreaMenuIcon);
 	QMenu* TabsMenu = new QMenu(TabsMenuButton);
 #ifndef QT_NO_TOOLTIP
 	TabsMenu->setToolTipsVisible(true);
 #endif
 	_this->connect(TabsMenu, SIGNAL(aboutToShow()), SLOT(onTabsMenuAboutToShow()));
 	TabsMenuButton->setMenu(TabsMenu);
-#ifndef QT_NO_TOOLTIP
-	TabsMenuButton->setToolTip(QObject::tr("List all tabs"));
-#endif
+	internal::setToolTip(TabsMenuButton, QObject::tr("List all tabs"));
 	TabsMenuButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(TabsMenuButton, 0);
 	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
@@ -220,10 +193,8 @@ void DockAreaTitleBarPrivate::createButtons()
 	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton));
 	UndockButton->setObjectName("undockButton");
 	UndockButton->setAutoRaise(true);
-#ifndef QT_NO_TOOLTIP
-	UndockButton->setToolTip(QObject::tr("Detach Group"));
-#endif
-	setTitleBarButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
+	internal::setToolTip(UndockButton, QObject::tr("Detach Group"));
+	internal::setButtonIcon(UndockButton, QStyle::SP_TitleBarNormalButton, ads::DockAreaUndockIcon);
 	UndockButton->setSizePolicy(ButtonSizePolicy);
 	TopLayout->addWidget(UndockButton, 0);
 	_this->connect(UndockButton, SIGNAL(clicked()), SLOT(onUndockButtonClicked()));
@@ -232,17 +203,15 @@ void DockAreaTitleBarPrivate::createButtons()
 	CloseButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasCloseButton));
 	CloseButton->setObjectName("closeButton");
 	CloseButton->setAutoRaise(true);
-	setTitleBarButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
-#ifndef QT_NO_TOOLTIP
+	internal::setButtonIcon(CloseButton, QStyle::SP_TitleBarCloseButton, ads::DockAreaCloseIcon);
 	if (testConfigFlag(CDockManager::DockAreaCloseButtonClosesTab))
 	{
-		CloseButton->setToolTip(QObject::tr("Close Active Tab"));
+		internal::setToolTip(CloseButton, QObject::tr("Close Active Tab"));
 	}
 	else
 	{
-		CloseButton->setToolTip(QObject::tr("Close Group"));
+		internal::setToolTip(CloseButton, QObject::tr("Close Group"));
 	}
-#endif
 	CloseButton->setSizePolicy(ButtonSizePolicy);
 	CloseButton->setIconSize(QSize(16, 16));
 	TopLayout->addWidget(CloseButton, 0);
@@ -343,9 +312,7 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 		}
 		auto Tab = d->TabBar->tab(i);
 		QAction* Action = menu->addAction(Tab->icon(), Tab->text());
-		#ifndef QT_NO_TOOLTIP
-		Action->setToolTip(Tab->toolTip());
-		#endif
+		internal::setToolTip(Action, Tab->toolTip());
 		Action->setData(i);
 	}
 
