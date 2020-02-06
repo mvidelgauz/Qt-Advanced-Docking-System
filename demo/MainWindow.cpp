@@ -306,6 +306,15 @@ void MainWindowPrivate::createContent()
 		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
+    
+    //_this->createEditor();
+    {
+        auto DockWidgetEditor = createEditorWidget(ui.menuView);
+        DockWidgetEditor->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+        auto FloatingWidget = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidgetEditor);
+        //FloatingWidget->move(QPoint(20, 20));
+        _this->connect(DockWidgetEditor, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
+    }
 
 	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
 	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
@@ -441,7 +450,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
     // comment the following line if you want to use opaque undocking and
 	// opaque splitter resizing
-    CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
+	//CDockManager::setConfigFlags(CDockManager::DefaultNonOpaqueConfig);
 
     // uncomment the following line if you want a fixed tab width that does
 	// not change if the visibility of the close button changes
@@ -460,7 +469,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
-	//CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
