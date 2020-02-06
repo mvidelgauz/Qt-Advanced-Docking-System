@@ -310,6 +310,7 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
+	d->MenuOutdated = true;
 }
 
 //============================================================================
