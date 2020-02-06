@@ -86,7 +86,7 @@ protected:
      * removed from a dock area, this function will be called with nullptr
      * value.
      */
-    void setDockArea(CDockAreaWidget* DockArea);
+    virtual void setDockArea(CDockAreaWidget* DockArea);
 
     /**
      * This function changes the toggle view action without emitting any

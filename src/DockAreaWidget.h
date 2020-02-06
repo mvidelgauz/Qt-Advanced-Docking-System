@@ -263,6 +263,8 @@ public:
 	 * Returns flags with all allowed drop areas of this particular dock area
 	 */
 	DockWidgetAreas allowedAreas() const;
+    
+    int widgetsCount() const;
 
 public slots:
 	/**
@@ -307,6 +309,8 @@ signals:
 	 * via toggle view function
 	 */
 	void viewToggled(bool Open);
+    
+    void countChanged(int count);
 }; // class DockAreaWidget
 }
  // namespace ads

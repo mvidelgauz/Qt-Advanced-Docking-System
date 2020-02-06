@@ -412,6 +412,7 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	}
 	DockWidget->setDockArea(this);
 	d->updateTitleBarButtonStates();
+    emit countChanged(d->ContentsLayout->count());
 }
 
 
@@ -455,6 +456,7 @@ void CDockAreaWidget::removeDockWidget(CDockWidget* DockWidget)
 #if (ADS_DEBUG_LEVEL > 0)
 	DockContainer->dumpLayout();
 #endif
+    emit countChanged(d->ContentsLayout->count());
 }
 
 
@@ -821,7 +823,12 @@ void CDockAreaWidget::setAllowedAreas(DockWidgetAreas areas)
 
 DockWidgetAreas CDockAreaWidget::allowedAreas() const
 {
-	return d->AllowedAreas;
+    return d->AllowedAreas;
+}
+
+int CDockAreaWidget::widgetsCount() const
+{
+    return d->ContentsLayout->count();
 }
 
 //============================================================================

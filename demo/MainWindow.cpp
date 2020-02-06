@@ -169,6 +169,31 @@ static ads::CDockWidget* createFileSystemTreeDockWidget(QMenu* ViewMenu)
 }
 
 //============================================================================
+#include "DockWidgetTab.h"
+class MyCDockWidget : public ads::CDockWidget
+{
+public:
+    using Super = ads::CDockWidget;
+    MyCDockWidget(const QString &title, QWidget* parent = 0)
+        :ads::CDockWidget(title, parent)
+    {
+    }
+    
+protected:
+    void setDockArea(ads::CDockAreaWidget* DockArea)
+    {
+        Super::setDockArea(DockArea);
+        if(DockArea)
+        {
+            QObject::connect(DockArea, &ads::CDockAreaWidget::countChanged, [=](int count)
+            {
+                qDebug() << "My neighbours count:" << (count - 1);
+                tabWidget()->setVisible(count > 1);
+            });
+        }
+    }
+};
+
 static ads::CDockWidget* createEditorWidget(QMenu* ViewMenu)
 {
 	static int EditorCount = 0;
@@ -176,7 +201,7 @@ static ads::CDockWidget* createEditorWidget(QMenu* ViewMenu)
 	w->setPlaceholderText("This is an editor. If you close the editor, it will be "
 		"deleted. Enter your text here.");
 	w->setStyleSheet("border: none");
-	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Editor %1").arg(EditorCount++));
+	ads::CDockWidget* DockWidget = new MyCDockWidget(QString("Editor %1").arg(EditorCount++));
 	DockWidget->setWidget(w);
 	DockWidget->setIcon(svgIcon(":/adsdemo/images/edit.svg"));
 	DockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
@@ -441,7 +466,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
     //CDockManager::setConfigFlag(CDockManager::RetainTabSizeWhenCloseButtonHidden, true);
 
 	// uncomment the following line if you don't want close button on DockArea's title bar
-	//CDockManager::setConfigFlag(CDockManager::DockAreaHasCloseButton, false);
+	CDockManager::setConfigFlag(CDockManager::DockAreaHasCloseButton, false);
 
 	// uncomment the following line if you don't want undock button on DockArea's title bar
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasUndockButton, false);
@@ -450,10 +475,10 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasTabsMenuButton, false);
 
 	// uncomment the following line if you don't want disabled buttons to appear on DockArea's title bar
-	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
-	//CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
@@ -559,6 +584,17 @@ void CMainWindow::createEditor()
 {
 	auto DockWidget = createEditorWidget(d->ui.menuView);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
+    auto ToolBar = DockWidget->createDefaultToolBar();
+    //ToolBar->addAction(d->ui.actionSaveState);
+    //ToolBar->addAction(d->ui.actionRestoreState);
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_DialogOpenButton), "Open..."));
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_DialogSaveButton), "Save"));
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_LineEditClearButton), "Clear"));
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_FileIcon), "Copy"));
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_ArrowLeft), "Find prev"));
+    ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_ArrowRight), "Find next"));
+    //ToolBar->addAction(new QAction(style()->standardPixmap(QStyle::SP_DialogHelpButton), "Help..."));
+            
 	auto FloatingWidget = d->DockManager->addDockWidgetFloating(DockWidget);
     FloatingWidget->move(QPoint(20, 20));
     connect(DockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
