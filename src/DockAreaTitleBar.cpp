@@ -70,6 +70,7 @@ struct DockAreaTitleBarPrivate
 	CDockAreaTabBar* TabBar;
 	bool MenuOutdated = true;
 	QMenu* TabsMenu;
+	QList<tTitleBarButton*> DockWidgetActionsButtons;
 
 	/**
 	 * Private data constructor
@@ -112,6 +113,7 @@ struct DockAreaTitleBarPrivate
  */
 class CTitleBarButton : public tTitleBarButton
 {
+	Q_OBJECT
 	bool Visible = true;
 	bool HideWhenDisabled = false;
 public:
@@ -149,10 +151,11 @@ protected:
 		if(QEvent::EnabledChange == ev->type() && HideWhenDisabled)
 		{
 			// force setVisible() call 
-			setVisible(isEnabled());
+			// Calling setVisible() directly here doesn't work well when button is expected to be shown first time
+			QMetaObject::invokeMethod(this, "setVisible", Qt::QueuedConnection, Q_ARG(bool, isEnabled()));
 		}
 
-		return Super::event(ev);;
+		return Super::event(ev);
 	}
 };
 
@@ -187,7 +190,6 @@ void DockAreaTitleBarPrivate::createButtons()
 	TopLayout->addWidget(TabsMenuButton, 0);
 	_this->connect(TabsMenuButton->menu(), SIGNAL(triggered(QAction*)),
 		SLOT(onTabsMenuActionTriggered(QAction*)));
-
 
 	// Undock button
 	UndockButton = new CTitleBarButton(testConfigFlag(CDockManager::DockAreaHasUndockButton));
@@ -231,6 +233,7 @@ void DockAreaTitleBarPrivate::createTabBar()
 	_this->connect(TabBar, SIGNAL(tabMoved(int, int)), SLOT(markTabsMenuOutdated()));
 	_this->connect(TabBar, SIGNAL(currentChanged(int)), SLOT(onCurrentTabChanged(int)));
 	_this->connect(TabBar, SIGNAL(tabBarClicked(int)), SIGNAL(tabBarClicked(int)));
+	_this->connect(TabBar, SIGNAL(elidedChanged(bool)), SLOT(markTabsMenuOutdated()));
 
 	TabBar->setContextMenuPolicy(Qt::CustomContextMenu);
 	_this->connect(TabBar, SIGNAL(customContextMenuRequested(const QPoint&)),
@@ -285,14 +288,30 @@ CDockAreaTabBar* CDockAreaTitleBar::tabBar() const
 	return d->TabBar;
 }
 
-
 //============================================================================
 void CDockAreaTitleBar::markTabsMenuOutdated()
 {
-	d->TabsMenuButton->setEnabled(d->TabBar->count() > 1);
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility))
+	{
+		bool hasElidedTabTitle = false;
+		for (int i = 0; i < d->TabBar->count(); ++i)
+		{
+			if (!d->TabBar->isTabOpen(i))
+			{
+				continue;
+			}
+			CDockWidgetTab* Tab = d->TabBar->tab(i);
+			if(Tab->isTitleElided())
+			{
+				hasElidedTabTitle = true;
+				break;
+			}
+		}
+		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
+		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
+	}
 	d->MenuOutdated = true;
 }
-
 
 //============================================================================
 void CDockAreaTitleBar::onTabsMenuAboutToShow()
@@ -355,6 +374,40 @@ void CDockAreaTitleBar::onTabsMenuActionTriggered(QAction* Action)
 
 
 //============================================================================
+void CDockAreaTitleBar::updateDockWidgetActionsButtons()
+{
+	CDockWidget* DockWidget = d->TabBar->currentTab()->dockWidget();
+	if (!d->DockWidgetActionsButtons.isEmpty())
+	{
+		for (auto Button : d->DockWidgetActionsButtons)
+		{
+			d->TopLayout->removeWidget(Button);
+			delete Button;
+		}
+		d->DockWidgetActionsButtons.clear();
+	}
+
+	auto Actions = DockWidget->titleBarActions();
+	if (Actions.isEmpty())
+	{
+		return;
+	}
+
+	int InsertIndex = 2;
+	for (auto Action : Actions)
+	{
+		auto Button = new CTitleBarButton(true, this);
+		Button->setDefaultAction(Action);
+		Button->setAutoRaise(true);
+		Button->setPopupMode(QToolButton::InstantPopup);
+		Button->setObjectName(Action->objectName());
+		d->TopLayout->insertWidget(InsertIndex++, Button, 0);
+		d->DockWidgetActionsButtons.append(Button);
+	}
+}
+
+
+//============================================================================
 void CDockAreaTitleBar::onCurrentTabChanged(int Index)
 {
 	if (Index < 0)
@@ -367,6 +420,8 @@ void CDockAreaTitleBar::onCurrentTabChanged(int Index)
 		CDockWidget* DockWidget = d->TabBar->tab(Index)->dockWidget();
 		d->CloseButton->setEnabled(DockWidget->features().testFlag(CDockWidget::DockWidgetClosable));
 	}
+
+	updateDockWidgetActionsButtons();
 }
 
 
@@ -412,6 +467,8 @@ void CDockAreaTitleBar::showContextMenu(const QPoint& pos)
 
 
 } // namespace ads
+
+#include "DockAreaTitleBar.moc"
 
 //---------------------------------------------------------------------------
 // EOF DockAreaTitleBar.cpp

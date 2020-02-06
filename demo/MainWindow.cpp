@@ -56,6 +56,7 @@
 #include <QScreen>
 #include <QStyle>
 #include <QMessageBox>
+#include <QMenu>
 
 #ifdef Q_OS_WIN
 #include <QAxWidget>
@@ -131,7 +132,7 @@ static void appendFeaturStringToWindowTitle(ads::CDockWidget* DockWidget)
  */
 static QIcon svgIcon(const QString& File)
 {
-	// This is a workaround, because because in item views SVG icons are not
+	// This is a workaround, because in item views SVG icons are not
 	// properly scaled an look blurry or pixelate
 	QIcon SvgIcon(File);
 	SvgIcon.addPixmap(SvgIcon.pixmap(92));
@@ -185,6 +186,20 @@ static ads::CDockWidget* createEditorWidget(QMenu* ViewMenu)
 	DockWidget->setIcon(svgIcon(":/adsdemo/images/edit.svg"));
 	DockWidget->setFeature(ads::CDockWidget::CustomCloseHandling, true);
 	ViewMenu->addAction(DockWidget->toggleViewAction());
+
+	QMenu* OptionsMenu = new QMenu(DockWidget);
+	OptionsMenu->setTitle(QObject::tr("Options"));
+	OptionsMenu->setToolTip(OptionsMenu->title());
+	OptionsMenu->setIcon(svgIcon(":/adsdemo/images/custom-menu-button.svg"));
+	auto MenuAction = OptionsMenu->menuAction();
+	// The object name of the action will be set for the QToolButton that
+	// is created in the dock area title bar. You can use this name for CSS
+	// styling
+	MenuAction->setObjectName("optionsMenu");
+	DockWidget->setTitleBarActions({OptionsMenu->menuAction()});
+	auto a = OptionsMenu->addAction(QObject::tr("Clear Editor"));
+	w->connect(a, SIGNAL(triggered()), SLOT(clear()));
+
 	return DockWidget;
 }
 
@@ -272,7 +287,6 @@ struct MainWindowPrivate
 	 */
 	void restorePerspectives();
 };
-
 
 //============================================================================
 void MainWindowPrivate::createContent()
@@ -418,6 +432,7 @@ CMainWindow::CMainWindow(QWidget *parent) :
 {
 	using namespace ads;
 	d->ui.setupUi(this);
+
 	d->createActions();
 
 	// uncomment the following line if the tab close button should be
@@ -443,6 +458,9 @@ CMainWindow::CMainWindow(QWidget *parent) :
 
 	// uncomment the following line if you don't want disabled buttons to appear on DockArea's title bar
 	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
+
+	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
+	//CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
 	// Now create the dock manager and its content
 	d->DockManager = new CDockManager(this);
