@@ -38,6 +38,7 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QPointer>
+#include <QLabel>
 
 #include "ads_globals.h"
 #include "FloatingDockContainer.h"
@@ -68,6 +69,7 @@ struct DockAreaTitleBarPrivate
 	QBoxLayout* TopLayout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
+    QLabel* SingleWidgetLabel;
 	bool MenuOutdated = true;
 	QMenu* TabsMenu;
 	QList<tTitleBarButton*> DockWidgetActionsButtons;
@@ -256,6 +258,14 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
 	d->createTabBar();
+    if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
+    {
+        d->SingleWidgetLabel = new QLabel("");
+        d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
+        d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+        d->TopLayout->addWidget(d->SingleWidgetLabel);
+        d->TopLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+    }
 	d->createButtons();
 
 }
@@ -310,6 +320,27 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
+    
+    if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
+    {
+        if(d->TabBar->count() > 1)
+        {
+            for (int i = 0; i < d->TabBar->count(); ++i)
+            {
+                auto Tab = d->TabBar->tab(i);
+                Tab->setVisible(true);
+            }
+            d->SingleWidgetLabel->setText("");
+        }
+        else
+        if(d->TabBar->count() == 1) // doen't crash here if there are no tabs at all for whatever reason...
+        {
+            auto SingleTab = d->TabBar->tab(0);
+            SingleTab->setVisible(false);
+            d->SingleWidgetLabel->setText(SingleTab->text());
+        }
+    }
+    
 	d->MenuOutdated = true;
 }
 

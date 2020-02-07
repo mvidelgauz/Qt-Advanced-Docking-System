@@ -43,6 +43,7 @@
 #include <qstringlist.h>
 #include <QtGui/qicon.h>
 
+
 class QSettings;
 class QMenu;
 
@@ -161,6 +162,7 @@ public:
 		DockAreaHasTabsMenuButton = 0x8000,     //!< If the flag is set each dock area has a tabs menu button
 		DockAreaHideDisabledButtons = 0x10000,    //!< If the flag is set disabled dock area buttons will not appear on the tollbar at all (enabling them will bring them back)
 		DockAreaDynamicTabsMenuButtonVisibility = 0x20000,     //!< If the flag is set dock area will disable a tabs menu button when there is only one tab in the area
+        DockAreaHideSingleTab = 0x40000,     //!< If the flag is set, a dock area with a single dockwidget will hide single tab and the name of that dockwidget will be shown on the title bar instead 
 
 
         DefaultDockAreaButtons = DockAreaHasCloseButton
