@@ -187,6 +187,30 @@ protected:
 };
 
 
+/**
+ * This spacer widget is here because of the following problem.
+ * The dock area title bar handles mouse dragging and moving the floating widget.
+ * The  problem is, that if the title bar becomes invisible, i.e. if the dock
+ * area contains only one single dock widget and the dock area is moved
+ * into a floating widget, then mouse events are not handled anymore and dragging
+ * of the floating widget stops.
+ */
+class CSpacerWidget : public QWidget
+{
+	Q_OBJECT
+public:
+	using Super = QWidget;
+	CSpacerWidget(QWidget* Parent = 0)
+	    : Super(Parent)
+	{
+	    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	    setStyleSheet("border: none; background: none;");
+	}
+	virtual QSize sizeHint() const override {return QSize(0, 0);}
+	virtual QSize minimumSizeHint() const override {return QSize(0, 0);}
+};
+
+
 //============================================================================
 DockAreaTitleBarPrivate::DockAreaTitleBarPrivate(CDockAreaTitleBar* _public) :
 	_this(_public)
@@ -323,17 +347,15 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setLayout(d->Layout);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
+	{
+		d->SingleWidgetLabel = new QLabel("");
+		d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
+		d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+		d->Layout->addWidget(d->SingleWidgetLabel);
+	}
 	d->createTabBar();
-    if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
-    {
-        d->SingleWidgetLabel = new QLabel("");
-        d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
-        d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-        d->Layout->addWidget(d->SingleWidgetLabel);
-        //d->TopLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    }
-	auto horizontalSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
-	d->Layout->addSpacerItem(horizontalSpacer);
+	d->Layout->addWidget(new CSpacerWidget(this));
 	d->createButtons();
 }
 
