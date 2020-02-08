@@ -330,7 +330,6 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
         d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
         d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
         d->Layout->addWidget(d->SingleWidgetLabel);
-        //d->TopLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
     }
 	auto horizontalSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 	d->Layout->addSpacerItem(horizontalSpacer);
@@ -423,7 +422,7 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 	menu->clear();
 	for (int i = 0; i < d->TabBar->count(); ++i)
 	{
-		if (!d->TabBar->isTabOpen(i))
+		if (!d->TabBar->tab(i)->dockWidget()->isVisible())
 		{
 			continue;
 		}

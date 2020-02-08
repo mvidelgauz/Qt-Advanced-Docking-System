@@ -345,6 +345,13 @@ void MainWindowPrivate::createContent()
 		DockManager->addDockWidgetTabToArea(DockWidget, DockArea);
 		_this->connect(DockWidget, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
 	});
+    
+    auto SingleWidgetLabel = new QLabel("la-la");
+    SingleWidgetLabel->setAlignment(Qt::AlignLeft);
+    SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+    TitleBar->indexOf(TitleBar->tabBar());
+    TitleBar->insertWidget(Index + 1, SingleWidgetLabel);
+    
 
 	// Test dock area docking
 	auto RighDockArea = DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), TopDockArea);
