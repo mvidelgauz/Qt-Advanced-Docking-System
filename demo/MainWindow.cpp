@@ -339,7 +339,6 @@ void MainWindowPrivate::createContent()
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
 
-	DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 	auto DockArea = DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 	if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false);
 
