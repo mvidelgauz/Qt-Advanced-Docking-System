@@ -81,6 +81,7 @@ struct DockWidgetPrivate
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	bool IsFloatingTopLevel = false;
 	QList<QAction*> TitleBarActions;
+	QString ToolTip;
 
 	/**
 	 * Private data constructor
@@ -564,6 +565,7 @@ bool CDockWidget::event(QEvent *e)
 //============================================================================
 void CDockWidget::setTabToolTip(const QString &text)
 {
+	d->ToolTip = text;
 	if (d->TabWidget)
 	{
 		d->TabWidget->setToolTip(text);
@@ -576,6 +578,11 @@ void CDockWidget::setTabToolTip(const QString &text)
 	{
 		d->DockArea->markTitleBarMenuOutdated();//update tabs menu
 	}
+}
+
+const QString &CDockWidget::toolTip() const
+{
+	return d->ToolTip;
 }
 #endif
 

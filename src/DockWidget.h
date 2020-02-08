@@ -424,6 +424,12 @@ public:
      * and tooltip for toggle view action
      */
     void setTabToolTip(const QString &text);
+    
+    /**
+     * Returns the tooltip that has been assigned to the dock widget,
+     * which can be used for any UI elements related to this DockWidget instance
+     */
+    const QString& toolTip() const;
 #endif
 
 public: // reimplements QFrame -----------------------------------------------

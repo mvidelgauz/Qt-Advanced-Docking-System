@@ -323,15 +323,12 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 
 	QMenu* menu = d->TabsMenuButton->menu();
 	menu->clear();
-	for (int i = 0; i < d->TabBar->count(); ++i)
+	auto OpenDockWidgets = d->DockArea->openedDockWidgets();
+	for (int i = 0; i < OpenDockWidgets.count(); ++i)
 	{
-		if (!d->TabBar->isTabOpen(i))
-		{
-			continue;
-		}
-		auto Tab = d->TabBar->tab(i);
-		QAction* Action = menu->addAction(Tab->icon(), Tab->text());
-		internal::setToolTip(Action, Tab->toolTip());
+		CDockWidget* DockWidget = OpenDockWidgets[i];
+		QAction* Action = menu->addAction(DockWidget->icon(), DockWidget->objectName());
+		internal::setToolTip(Action, DockWidget->toolTip());
 		Action->setData(i);
 	}
 

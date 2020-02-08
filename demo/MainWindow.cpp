@@ -69,6 +69,8 @@
 #include "DockWidget.h"
 #include "DockAreaWidget.h"
 #include "FloatingDockContainer.h"
+#include "DockWidgetTab.h"
+static bool TestHiddenTabs = true;
 
 
 //============================================================================
@@ -96,6 +98,7 @@ static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
 	DockWidget->setWidget(l);
 	ViewMenu->addAction(DockWidget->toggleViewAction());
+	if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false); // TODO: not working here, probably overrden by DockManager->addDockWidget
 	return DockWidget;
 }
 
@@ -232,6 +235,7 @@ static ads::CDockWidget* createActiveXWidget(QMenu* ViewMenu, QWidget* parent = 
    ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Active X %1").arg(ActiveXCount++));
    DockWidget->setWidget(w);
    ViewMenu->addAction(DockWidget->toggleViewAction());
+   if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false);
    return DockWidget;
 }
 #endif
@@ -298,14 +302,20 @@ void MainWindowPrivate::createContent()
 	{
 		SpecialDockArea->setAllowedAreas(ads::OuterDockAreas);
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
+
+		if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false);
 	}
 
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
+	DockWidget = createLongTextLabelDockWidget(ViewMenu);
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
+	if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false);
+	
 	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	auto ToolBar = FileSystemWidget->createDefaultToolBar();
 	ToolBar->addAction(ui.actionSaveState);
 	ToolBar->addAction(ui.actionRestoreState);
 	DockManager->addDockWidget(ads::BottomDockWidgetArea, FileSystemWidget);
+	if(TestHiddenTabs) FileSystemWidget->tabWidget()->setVisible(false);
 
 	FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	ToolBar = FileSystemWidget->createDefaultToolBar();
@@ -315,10 +325,13 @@ void MainWindowPrivate::createContent()
 	FileSystemWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	appendFeaturStringToWindowTitle(FileSystemWidget);
 	auto TopDockArea = DockManager->addDockWidget(ads::TopDockWidgetArea, FileSystemWidget);
+	if(TestHiddenTabs) FileSystemWidget->tabWidget()->setVisible(false);
+
 	DockWidget = createCalendarDockWidget(ViewMenu);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
 	DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
+	if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false);
 
 	// Test dock area docking
 	auto RighDockArea = DockManager->addDockWidget(ads::RightDockWidgetArea, createLongTextLabelDockWidget(ViewMenu), TopDockArea);
