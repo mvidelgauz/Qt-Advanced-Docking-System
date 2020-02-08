@@ -43,7 +43,6 @@
 #include <qstringlist.h>
 #include <QtGui/qicon.h>
 
-
 class QSettings;
 class QMenu;
 

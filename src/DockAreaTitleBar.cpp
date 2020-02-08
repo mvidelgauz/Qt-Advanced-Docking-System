@@ -70,7 +70,7 @@ struct DockAreaTitleBarPrivate
 	QBoxLayout* Layout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
-    QLabel* SingleWidgetLabel;
+	QLabel* SingleWidgetLabel;
 	bool MenuOutdated = true;
 	QMenu* TabsMenu;
 	QList<tTitleBarButton*> DockWidgetActionsButtons;
@@ -348,13 +348,13 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	d->createTabBar();
-    if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
-    {
-        d->SingleWidgetLabel = new QLabel("");
-        d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
-        d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-        d->Layout->addWidget(d->SingleWidgetLabel);
-    }
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
+	{
+		d->SingleWidgetLabel = new QLabel("");
+		d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
+		d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+		d->Layout->addWidget(d->SingleWidgetLabel);
+	}
 	d->Layout->addWidget(new CSpacerWidget(this));
 	d->createButtons();
 }
@@ -427,7 +427,7 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 			auto SingleTab = d->TabBar->tab(0);
 			SingleTab->setVisible(false);
 			d->SingleWidgetLabel->setText(SingleTab->text());
-        }
+		}
 	}
 
 	d->MenuOutdated = true;
