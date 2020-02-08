@@ -73,8 +73,6 @@
 #include "DockAreaTitleBar.h"
 #include "DockAreaTabBar.h"
 #include "FloatingDockContainer.h"
-#include "DockWidgetTab.h"
-static bool TestHiddenTabs = true;
 
 
 //============================================================================
@@ -102,7 +100,6 @@ static ads::CDockWidget* createLongTextLabelDockWidget(QMenu* ViewMenu)
 	ads::CDockWidget* DockWidget = new ads::CDockWidget(QString("Label %1").arg(LabelCount++));
 	DockWidget->setWidget(l);
 	ViewMenu->addAction(DockWidget->toggleViewAction());
-	if(TestHiddenTabs) DockWidget->tabWidget()->setVisible(false); // TODO: not working here, probably overrden by DockManager->addDockWidget
 	return DockWidget;
 }
 
