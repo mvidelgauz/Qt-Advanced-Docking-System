@@ -74,7 +74,7 @@
 #include "DockAreaTabBar.h"
 #include "FloatingDockContainer.h"
 #include "DockWidgetTab.h"
-static bool TestHiddenTabs = true;
+static bool TestHiddenTabs = false; // set it to 'true' to make sure TabsMenu is working properly when some tabs are hidden
 
 
 //============================================================================
