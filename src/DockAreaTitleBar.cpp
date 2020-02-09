@@ -50,12 +50,68 @@
 #include "DockWidgetTab.h"
 #include "DockAreaTabBar.h"
 #include "IconProvider.h"
+#include "ElidingLabel.h"
 
 #include <iostream>
 
 namespace ads
 {
 using tTitleBarButton = QToolButton;
+
+class CElidingLabelOne : public CElidingLabel
+{
+public:
+    CElidingLabelOne(CDockWidget* DockWidget, QWidget* parent = 0)
+        :CElidingLabel(DockWidget->objectName(), parent)
+    {
+    }
+};
+
+class CDockWidgetTabOne : public CDockWidgetTab
+{
+public:
+    CDockWidgetTabOne(CDockWidget* DockWidget, QWidget* parent = 0)
+        :CDockWidgetTab(DockWidget, parent)
+    {}
+};
+
+class CDockWidgetTabSingle : public QFrame
+{
+    using tTabLabel = CElidingLabel;
+    
+    QPointer<tTabLabel> TitleLabel;
+public:
+    
+    CDockWidgetTabSingle(CDockWidget* DockWidget, QWidget* parent = 0) :
+        QFrame(parent)
+    {
+        TitleLabel = new tTabLabel(DockWidget->objectName());
+        TitleLabel->setElideMode(Qt::ElideRight);
+        TitleLabel->setAlignment(Qt::AlignCenter);
+        SetDockWidget(DockWidget);
+        
+        QFontMetrics fm(TitleLabel->font());
+        int Spacing = qRound(fm.height() / 4.0);
+    
+        // Fill the layout
+        QBoxLayout* Layout = new QBoxLayout(QBoxLayout::LeftToRight);
+        Layout->setContentsMargins(2 * Spacing,0,0,0);
+        Layout->setSpacing(0);
+        setLayout(Layout);
+        Layout->addWidget(TitleLabel, 0);
+        
+        TitleLabel->setVisible(true);
+    }
+    
+    void SetDockWidget(CDockWidget* DockWidget)
+    {
+        TitleLabel->setText(DockWidget->windowTitle());        
+    }
+};
+
+//using tSingleWidgetLabel = CElidingLabelOne;
+//using tSingleWidgetLabel = CDockWidgetTabOne;
+using tSingleWidgetLabel = CDockWidgetTabSingle;
 
 
 /**
@@ -70,7 +126,7 @@ struct DockAreaTitleBarPrivate
 	QBoxLayout* Layout;
 	CDockAreaWidget* DockArea;
 	CDockAreaTabBar* TabBar;
-    QLabel* SingleWidgetLabel;
+	QPointer<tSingleWidgetLabel> SingleWidgetLabel;
 	bool MenuOutdated = true;
 	QMenu* TabsMenu;
 	QList<tTitleBarButton*> DockWidgetActionsButtons;
@@ -349,10 +405,10 @@ CDockAreaTitleBar::CDockAreaTitleBar(CDockAreaWidget* parent) :
 
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
 	{
-		d->SingleWidgetLabel = new QLabel("");
-		d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
-		d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-		d->Layout->addWidget(d->SingleWidgetLabel);
+		//d->SingleWidgetLabel = new tSingleWidgetLabel(this);
+		//d->SingleWidgetLabel->setAlignment(Qt::AlignLeft);
+		//d->SingleWidgetLabel->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
+		//d->Layout->addWidget(d->SingleWidgetLabel);
 	}
 	d->createTabBar();
 	d->Layout->addWidget(new CSpacerWidget(this));
@@ -412,18 +468,21 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 
 	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
 	{
+        d->Layout->removeWidget(d->SingleWidgetLabel);
+        delete d->SingleWidgetLabel;
+        
 		if(d->TabBar->count() > 1)
 		{
 			d->TabBar->setVisible(true);
-			d->SingleWidgetLabel->setVisible(false);
 		}
 		else
 		if(d->TabBar->count() == 1) // don't crash here if there are no tabs at all for whatever reason...
 		{
-			d->TabBar->setVisible(false);
-			d->SingleWidgetLabel->setVisible(true);
 			auto SingleTab = d->TabBar->tab(0);
-			d->SingleWidgetLabel->setText(SingleTab->text());
+            d->SingleWidgetLabel = new tSingleWidgetLabel(SingleTab->dockWidget());
+            qDebug() << "creating new SingleWidgetLabel for " << SingleTab->dockWidget()->objectName();
+            d->Layout->insertWidget(0, d->SingleWidgetLabel);
+            d->TabBar->setVisible(false);
 		}
 	}
 

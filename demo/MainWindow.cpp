@@ -476,10 +476,10 @@ CMainWindow::CMainWindow(QWidget *parent) :
 	//CDockManager::setConfigFlag(CDockManager::DockAreaHasTabsMenuButton, false);
 
 	// uncomment the following line if you don't want disabled buttons to appear on DockArea's title bar
-	//CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaHideDisabledButtons, true);
 
 	// uncomment the following line if you want to show tabs menu button on DockArea's title bar only when there are more than one tab and at least of them has elided title
-	//CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
+	CDockManager::setConfigFlag(CDockManager::DockAreaDynamicTabsMenuButtonVisibility, true);
 
     // uncomment the following line if you want a dock area with a single dockwidget to hide single tab and show the name of that on the title bar instead 
     CDockManager::setConfigFlag(CDockManager::DockAreaHideSingleTab, true);
