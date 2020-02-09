@@ -417,7 +417,7 @@ void CDockAreaTitleBar::onTabsMenuAboutToShow()
 	for (int i = 0; i < OpenDockWidgets.count(); ++i)
 	{
 		CDockWidget* DockWidget = OpenDockWidgets[i];
-		QAction* Action = menu->addAction(DockWidget->icon(), DockWidget->objectName());
+		QAction* Action = menu->addAction(DockWidget->icon(), DockWidget->windowTitle());
 		internal::setToolTip(Action, DockWidget->toolTip());
 		Action->setData(i);
 	}
