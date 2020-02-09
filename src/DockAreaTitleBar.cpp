@@ -409,27 +409,24 @@ void CDockAreaTitleBar::markTabsMenuOutdated()
 		bool visible = (hasElidedTabTitle && (d->TabBar->count() > 1));
 		QMetaObject::invokeMethod(d->TabsMenuButton, "setVisible", Qt::QueuedConnection, Q_ARG(bool, visible));
 	}
-    
-    if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
-    {
-        if(d->TabBar->count() > 1)
-        {
-            for (int i = 0; i < d->TabBar->count(); ++i)
-            {
-                auto Tab = d->TabBar->tab(i);
-                Tab->setVisible(true);
-            }
-            d->SingleWidgetLabel->setText("");
-        }
-        else
-        if(d->TabBar->count() == 1) // doen't crash here if there are no tabs at all for whatever reason...
-        {
-            auto SingleTab = d->TabBar->tab(0);
-            SingleTab->setVisible(false);
-            d->SingleWidgetLabel->setText(SingleTab->text());
-        }
-    }
-    
+
+	if(DockAreaTitleBarPrivate::testConfigFlag(CDockManager::DockAreaHideSingleTab))
+	{
+		if(d->TabBar->count() > 1)
+		{
+			d->TabBar->setVisible(true);
+			d->SingleWidgetLabel->setVisible(false);
+		}
+		else
+		if(d->TabBar->count() == 1) // don't crash here if there are no tabs at all for whatever reason...
+		{
+			d->TabBar->setVisible(false);
+			d->SingleWidgetLabel->setVisible(true);
+			auto SingleTab = d->TabBar->tab(0);
+			d->SingleWidgetLabel->setText(SingleTab->text());
+		}
+	}
+
 	d->MenuOutdated = true;
 }
 
