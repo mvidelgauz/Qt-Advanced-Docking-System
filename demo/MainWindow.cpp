@@ -315,8 +315,9 @@ void MainWindowPrivate::createContent()
     {
         auto DockWidgetEditor = createEditorWidget(ui.menuView);
         DockWidgetEditor->setFeature(ads::CDockWidget::DockWidgetDeleteOnClose, true);
-        auto FloatingWidget = DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidgetEditor);
-        //FloatingWidget->move(QPoint(20, 20));
+        DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidgetEditor)
+                //->move(QPoint(20, 20));
+                ;
         _this->connect(DockWidgetEditor, SIGNAL(closeRequested()), SLOT(onEditorCloseRequested()));
     }
 
