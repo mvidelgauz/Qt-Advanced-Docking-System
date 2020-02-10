@@ -73,7 +73,6 @@
 #include "DockAreaTitleBar.h"
 #include "DockAreaTabBar.h"
 #include "FloatingDockContainer.h"
-#include "DockWidgetTab.h"
 
 
 //============================================================================
