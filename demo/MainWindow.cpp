@@ -340,8 +340,8 @@ void MainWindowPrivate::createContent()
 	// from closing
 	DockWidget = createCalendarDockWidget(ViewMenu);
 	//DockWidget->setFeature(ads::CDockWidget::DockWidgetClosable, false);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
-	DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+	//DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+	//DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
 	auto DockArea = DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 
