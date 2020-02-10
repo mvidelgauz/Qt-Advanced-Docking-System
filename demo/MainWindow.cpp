@@ -304,15 +304,13 @@ void MainWindowPrivate::createContent()
 		//SpecialDockArea->setAllowedAreas({ads::LeftDockWidgetArea, ads::RightDockWidgetArea}); // just for testing
 	}
 
-	DockWidget = createLongTextLabelDockWidget(ViewMenu);
-	DockManager->addDockWidget(ads::LeftDockWidgetArea, DockWidget);
-	
+	DockManager->addDockWidget(ads::LeftDockWidgetArea, createLongTextLabelDockWidget(ViewMenu));
+
 	auto FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	auto ToolBar = FileSystemWidget->createDefaultToolBar();
 	ToolBar->addAction(ui.actionSaveState);
 	ToolBar->addAction(ui.actionRestoreState);
 	DockManager->addDockWidget(ads::BottomDockWidgetArea, FileSystemWidget);
-
 	FileSystemWidget = createFileSystemTreeDockWidget(ViewMenu);
 	ToolBar = FileSystemWidget->createDefaultToolBar();
 	ToolBar->addAction(ui.actionSaveState);
@@ -329,7 +327,6 @@ void MainWindowPrivate::createContent()
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetMovable, false);
 	DockWidget->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
 	DockWidget->setTabToolTip(QString("Tab ToolTip\nHodie est dies magna"));
-
 	auto DockArea = DockManager->addDockWidget(ads::CenterDockWidgetArea, DockWidget, TopDockArea);
 
 	// Now we add a custom button to the dock area title bar that will create
