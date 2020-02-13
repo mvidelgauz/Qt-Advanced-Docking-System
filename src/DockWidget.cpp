@@ -87,7 +87,7 @@ struct DockWidgetPrivate
 	/**
 	 * Private data constructor
 	 */
-	DockWidgetPrivate(CDockManager* DockManager, CDockWidget* _public);
+	DockWidgetPrivate(CDockManager* _DockManager, CDockWidget* _public);
 
 	/**
 	 * Show dock widget
