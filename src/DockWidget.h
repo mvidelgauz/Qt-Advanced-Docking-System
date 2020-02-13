@@ -220,6 +220,11 @@ public:
     CDockWidget(const QString &title, QWidget* parent = 0);
 
     /**
+      Overloaded constructor that accepts an instance of CDockManager
+     */
+    CDockWidget(CDockManager *DocManager, const QString &title, QWidget* parent = 0);
+
+    /**
      * Virtual Destructor
      */
     virtual ~CDockWidget();

@@ -65,12 +65,13 @@ namespace ads
  */
 struct DockWidgetPrivate
 {
+	// const CDockManager* DockManager = nullptr; // can be used in future enhancements if is not null 
 	CDockWidget* _this = nullptr;
 	QBoxLayout* Layout = nullptr;
 	QWidget* Widget = nullptr;
 	CDockWidgetTab* TabWidget = nullptr;
 	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
-	CDockManager* DockManager = nullptr;
+	CDockManager* DockManager = nullptr; // can be used in future enhancements if is not null
 	CDockAreaWidget* DockArea = nullptr;
 	QAction* ToggleViewAction = nullptr;
 	bool Closed = false;
@@ -86,7 +87,7 @@ struct DockWidgetPrivate
 	/**
 	 * Private data constructor
 	 */
-	DockWidgetPrivate(CDockWidget* _public);
+	DockWidgetPrivate(CDockManager* DockManager, CDockWidget* _public);
 
 	/**
 	 * Show dock widget
@@ -118,12 +119,12 @@ struct DockWidgetPrivate
 // struct DockWidgetPrivate
 
 //============================================================================
-DockWidgetPrivate::DockWidgetPrivate(CDockWidget* _public) :
-	_this(_public)
+DockWidgetPrivate::DockWidgetPrivate(CDockManager *_DockManager, CDockWidget* _public) :
+	DockManager(_DockManager)
+	, _this(_public)
 {
 
 }
-
 
 //============================================================================
 void DockWidgetPrivate::showDockWidget()
@@ -210,9 +211,9 @@ void DockWidgetPrivate::setupScrollArea()
 
 
 //============================================================================
-CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
+CDockWidget::CDockWidget(CDockManager* DocManager, const QString &title, QWidget *parent) :
 	QFrame(parent),
-	d(new DockWidgetPrivate(this))
+	d(new DockWidgetPrivate(DocManager, this))
 {
 	d->Layout = new QBoxLayout(QBoxLayout::TopToBottom);
 	d->Layout->setContentsMargins(0, 0, 0, 0);
@@ -227,6 +228,11 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
 		SLOT(toggleView(bool)));
 	setToolbarFloatingStyle(false);
+}
+
+CDockWidget::CDockWidget(const QString &title, QWidget* parent) :
+	CDockWidget(nullptr, title, parent)
+{
 }
 
 //============================================================================
