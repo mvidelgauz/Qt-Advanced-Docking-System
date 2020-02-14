@@ -28,8 +28,9 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include "DockWidgetTab.h"
 #include "DockAreaWidget.h"
+
+#include <iostream>
 
 #include <QStackedLayout>
 #include <QScrollBar>
@@ -53,8 +54,8 @@
 #include "DockAreaTabBar.h"
 #include "DockSplitter.h"
 #include "DockAreaTitleBar.h"
-
-#include <iostream>
+#include "DockComponentsFactory.h"
+#include "DockWidgetTab.h"
 
 
 namespace ads
@@ -262,7 +263,7 @@ struct DockAreaWidgetPrivate
 	 */
 	CDockWidget* dockWidgetAt(int index)
 	{
-		return dynamic_cast<CDockWidget*>(ContentsLayout->widget(index));
+		return qobject_cast<CDockWidget*>(ContentsLayout->widget(index));
 	}
 
 	/**
@@ -317,7 +318,7 @@ DockAreaWidgetPrivate::DockAreaWidgetPrivate(CDockAreaWidget* _public) :
 //============================================================================
 void DockAreaWidgetPrivate::createTitleBar()
 {
-	TitleBar = new CDockAreaTitleBar(_this);
+	TitleBar = componentsFactory()->createDockAreaTitleBar(_this);
 	Layout->addWidget(TitleBar);
 	QObject::connect(tabBar(), &CDockAreaTabBar::tabCloseRequested, _this, &CDockAreaWidget::onTabCloseRequested);
 	QObject::connect(TitleBar, &CDockAreaTitleBar::tabBarClicked, _this, &CDockAreaWidget::setCurrentIndex);
@@ -397,7 +398,6 @@ void CDockAreaWidget::insertDockWidget(int index, CDockWidget* DockWidget,
 	bool Activate)
 {
 	d->ContentsLayout->insertWidget(index, DockWidget);
-	DockWidget->tabWidget()->setDockAreaWidget(this);
 	auto TabWidget = DockWidget->tabWidget();
 	// Inserting the tab will change the current index which in turn will
 	// make the tab widget visible in the slot
